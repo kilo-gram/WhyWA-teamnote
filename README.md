@@ -1,0 +1,2 @@
+# WhyWA-teamnote
+ICPC teamnote
