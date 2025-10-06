@@ -1,32 +1,57 @@
-// SZ: N보다 크거나 같은 2^k 꼴의 수
-// 13만 -> 1 << 17 (131072), 26만 -> 1 << 18 (262144)
-// 52만 -> 1 << 19 (524288), 100만 -> 1 << 20 (1048576)
-constexpr int SZ = 1 << 20;
-ll T[SZ<<1], L[SZ<<1];
-
-void Push(int node, int s, int e){
-    if(L[node] == 0) return;
-    T[node] += (e - s + 1) * L[node];
-    if(s != e) L[node*2] += L[node], L[node*2+1] += L[node];
-    L[node] = 0;
-}
-
-// [l, r]번째 수에 v를 더함, 0 <= l <= r < SZ
-void RangeAdd(int l, int r, ll v, int node=1, int s=0, int e=SZ-1){
-    Push(node, s, e);
-    if(r < s || e < l) return;
-    if(l <= s && e <= r){ L[node] += v; Push(node, s, e); return; }
-    int m = (s + e) / 2;
-    RangeAdd(l, r, v, node*2, s, m);
-    RangeAdd(l, r, v, node*2+1, m+1, e);
-    T[node] = T[node*2] + T[node*2+1];
-}
-
-// [l, r]번째 수의 합을 구함
-ll RangeSum(int l, int r, int node=1, int s=0, int e=SZ-1){
-    Push(node, s, e);
-    if(r < s || e < l) return 0;
-    if(l <= s && e <= r) return T[node];
-    int m = (s + e) / 2;
-    return RangeSum(l, r, node*2, s, m) + RangeSum(l, r, node*2+1, m+1, e);
-}
+const int N = 5e5 + 9;
+int a[N];
+struct ST {
+    #define lc (n << 1)
+    #define rc ((n << 1) | 1)
+    long long t[4 * N], lazy[4 * N];
+    ST() {
+        memset(t, 0, sizeof t);
+        memset(lazy, 0, sizeof lazy);
+    }
+    inline void push(int n, int b, int e) {
+        if (lazy[n] == 0) return;
+        t[n] = t[n] + lazy[n] * (e - b + 1);
+        if (b != e) {
+            lazy[lc] = lazy[lc] + lazy[n];
+            lazy[rc] = lazy[rc] + lazy[n];
+        }
+        lazy[n] = 0;
+    }
+    inline long long combine(long long a,long long b) {
+        return a + b;
+    }
+    inline void pull(int n) {
+        t[n] = t[lc] + t[rc];
+    }
+    void build(int n, int b, int e) {
+        lazy[n] = 0;
+        if (b == e) {
+            t[n] = a[b];
+            return;
+        }
+        int mid = (b + e) >> 1;
+        build(lc, b, mid);
+        build(rc, mid + 1, e);
+        pull(n);
+    }
+    void upd(int n, int b, int e, int i, int j, long long v) {
+        push(n, b, e);
+        if (j < b || e < i) return;
+        if (i <= b && e <= j) {
+            lazy[n] = v; //set lazy
+            push(n, b, e);
+            return;
+        }
+        int mid = (b + e) >> 1;
+        upd(lc, b, mid, i, j, v);
+        upd(rc, mid + 1, e, i, j, v);
+        pull(n);
+    }
+    long long query(int n, int b, int e, int i, int j) {
+        push(n, b, e);
+        if (i > e || b > j) return 0; //return null
+        if (i <= b && e <= j) return t[n];
+        int mid = (b + e) >> 1;
+        return combine(query(lc, b, mid, i, j), query(rc, mid + 1, e, i, j));
+    }
+};
