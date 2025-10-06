@@ -26,3 +26,25 @@ struct DSU {
         return j;
     }
 };
+
+void mst(int n, int m) {
+    vector<array<int, 3>> ed;
+    for (int i = 1; i < m + 1; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        ed.push_back({w, u, v});
+    }
+    // if you want to find Maximum Spanning Tree,
+    // then you should sort all edge of graph 
+    // in decreasing order of weights.
+    sort(ed.begin(), ed.end());
+    ll ans = 0;
+    DSU d(n);
+    for (auto e : ed) {
+        int u = e[1], v = e[2], w = e[0];
+        if (d.same(u, v)) continue;
+        ans += w;
+        d.unite(u, v);
+    }
+    //print ans
+}
