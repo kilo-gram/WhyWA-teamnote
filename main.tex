@@ -49,34 +49,54 @@
 
 \section{그래프/트리}
 
-\Algorithm{인접 리스트, DFS, BFS}
-{}{$O(V+E)$}
-{cpp}{code/Graph1/DFSBFS.cpp}
+\Algorithm{인접 리스트}
+{}{}
+{py}{code/Graph1/AdjacencyList.py}
 {kilogram}
 
-\Algorithm{위상 정렬}
+\Algorithm{인접 리스트DFS}
+{}{$O(V+E)$}
+{py}{code/Graph1/AdjacencyListDFS.py}
+{kilogram}
+
+\Algorithm{인접 리스트BFS}
+{}{}
+{py}{code/Graph1/AdjacencyListBFS.py}
+{kilogram}
+
+\Algorithm{위상 정렬(cpp)}
 {}{$O(V+E)$}
 {cpp}{code/Graph1/TopSort.cpp}
 {kilogram}
 
-\Algorithm{최단 거리 - Floyd Warshall}
-{}{$O(V^3)$}
-{cpp}{code/Graph1/Floyd.cpp}
+\Algorithm{위상 정렬(py)}
+{}{$O(V+E)$}
+{py}{code/Graph1/TopologicalSort.py}
 {kilogram}
 
-\Algorithm{최단 거리 - Dijkstra}
+\Algorithm{최단 거리 - Floyd Warshall}
+{}{$O(V^3)$}
+{py}{code/Graph1/FloydWarshall.py}
+{kilogram}
+
+\Algorithm{최단 거리 - Dijkstra(cpp)}
 {}{$O(E\log E)$}
 {cpp}{code/Graph1/Dijkstra.cpp}
 {kilogram}
 
+\Algorithm{최단 거리 - Dijkstra(py)}
+{}{$O(E\log E)$}
+{py}{code/Graph1/dijkstra.py}
+{kilogram}
+
 \Algorithm{최단 거리 - Bellman Ford}
 {}{$O(VE)$}
-{cpp}{code/Graph1/Bellman.cpp}
+{py}{code/Graph1/BellmanFord.py}
 {kilogram}
 
 \Algorithm{유니온 파인드 + 최소 신장 트리(Kruskal)}
 {}{UF: 연산마다 $O(log N)$, MST: $O(E \log E)$}
-{cpp}{code/Graph1/Kruskal.cpp}
+{py}{code/Graph1/UnionFindAndMST.py}
 {kilogram}
 
 \Algorithm{SCC - Kosaraju}
