@@ -1,23 +1,51 @@
-int N, M, C[10101]; // C[i] = i번 정점이 속한 SCC 번호
-vector<int> G[10101], R[10101], V;
-vector<vector<int>> S; // 각 SCC에 속한 정점 목록
-void AddEdge(int s, int e){
-    G[s].push_back(e);
-    R[e].push_back(s);
+const int N = 3e5 + 9;
+
+// given a directed graph return the minimum number of edges to be added so that the whole graph become an SCC
+// you need to restore original graph in g and reverse graph in r.
+bool vis[N];
+vector<int> g[N], r[N], G[N], vec; //G is the condensed graph
+void dfs1(int u) {
+    vis[u] = 1;
+    for(auto v : g[u]) if (!vis[v]) dfs1(v);
+    vec.push_back(u);
 }
-void DFS1(int v){
-    C[v] = -1;
-    for(auto i : G[v]) if(!C[i]) DFS1(i);
-    V.push_back(v);
+
+vector<int> comp;
+void dfs2(int u) {
+    comp.push_back(u);
+    vis[u] = 1;
+    for(auto v : r[u]) if (!vis[v]) dfs2(v);
 }
-void DFS2(int v, int c){
-    C[v] = c; S.back().push_back(v);
-    for(auto i : R[v]) if(C[i] == -1) DFS2(i, c);
+
+int idx[N], in[N], out[N];
+
+void find(int n) {
+    for(int i = 1; i <= n; i++) if(!vis[i]) dfs1(i);
+    reverse(vec.begin(), vec.end());
+    memset(vis, 0, sizeof(vis));
+    int scc = 0;
+    for(auto u : vec) {
+        if(!vis[u]) {
+            comp.clear();
+            dfs2(u);
+            scc++;
+            for(auto x : comp) idx[x] = scc;
+        }
+    }
+    for(int u = 1; u <= n; u++) {
+        for(auto v : g[u]) {
+            if(idx[u] != idx[v]) {
+                in[idx[v]]++, out[idx[u]]++;
+                G[idx[u]].push_back(idx[v]);
+            }
+        }
+    }
+    int needed_in = 0, needed_out = 0;
+    for(int i = 1; i <= scc; i++) {
+        if(!in[i]) needed_in++;
+        if(!out[i]) needed_out++;
+    }
+    int ans = max(needed_in, needed_out);
+    if(scc == 1) ans = 0;
+    cout << ans;
 }
-int GetSCC(){ // SCC 개수 반환
-    for(int i=1; i<=N; i++) if(!C[i]) DFS1(i);
-    reverse(V.begin(), V.end());
-    int cnt = 0;
-    for(auto i : V) if(C[i] == -1) S.emplace_back(), DFS2(i, cnt++);
-    return cnt;
-} // 각 SCC는 위상 정렬 순서대로 번호 매겨져 있음
