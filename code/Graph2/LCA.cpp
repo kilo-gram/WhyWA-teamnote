@@ -1,22 +1,43 @@
-int N, Q, D[101010], P[22][101010];
-vector<int> G[101010];
-void Connect(int u, int v){
-    G[u].push_back(v); G[v].push_back(u);
+const int N = 3e5 + 9, LG = 18;
+
+vector<int> g[N];
+int par[N][LG + 1], dep[N], sz[N];
+// don't forget to call dfs(1)
+void dfs(int u, int p = 0) {
+    par[u][0] = p;
+    dep[u] = dep[p] + 1;
+    sz[u] = 1;
+    for (int i = 1; i <= LG; i++) par[u][i] = par[par[u][i - 1]][i - 1];
+    for (auto v : g[u]) {
+        if (v != p) {
+            dfs(v, u);
+            sz[u] += sz[v];
+        }
+    }
 }
-void DFS(int v, int b=-1){
-    for(auto i : G[v]) if(i != b) D[i] = D[v] + 1, P[0][i] = v, DFS(i, v);
+int lca(int u, int v) {
+    if (dep[u] < dep[v]) swap(u, v);
+    for (int k = LG; k >= 0; k--) if (dep[par[u][k]] >= dep[v]) u = par[u][k];
+    if (u == v) return u;
+    for (int k = LG; k >= 0; k--) if (par[u][k] != par[v][k]) u = par[u][k], v = par[v][k];
+    return par[u][0];
 }
-int LCA(int u, int v){
-    if(D[u] < D[v]) swap(u, v);
-    int diff = D[u] - D[v];
-    for(int i=0; diff; i++, diff>>=1) if(diff & 1) u = P[i][u];
-    if(u == v) return u;
-    for(int i=21; i>=0; i--) if(P[i][u] != P[i][v]) u = P[i][u], v = P[i][v];
-    return P[0][u];
+// 'kth'function is a Binary Lifting
+int kth(int u, int k) {
+    assert(k >= 0);
+    for (int i = 0; i <= LG; i++) if (k & (1 << i)) u = par[u][i];
+    return u;
 }
-////
-// 1. Connect로 간선 추가
-// 2. DFS(1) 호출
-// 3. 아래 코드 실행
-for(int i=1; i<22; i++) for(int j=1; j<=N; j++) P[i][j] = P[i-1][P[i-1][j]];
-// 4. LCA(u, v)로 최소 공통 조상 구할 수 있음
+int dist(int u, int v) {
+    int l = lca(u, v);
+    return dep[u] + dep[v] - (dep[l] << 1);
+}
+//kth node from u to v, 0th node is u
+int go(int u, int v, int k) {
+    int l = lca(u, v);
+    int d = dep[u] + dep[v] - (dep[l] << 1);
+    assert(k <= d);
+    if (dep[l] + k <= dep[u]) return kth(u, k);
+    k -= dep[u] - dep[l];
+    return kth(v, dep[v] - dep[l] - k);
+}
