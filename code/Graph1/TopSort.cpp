@@ -1,12 +1,40 @@
-int N, M, In[1010];
-vector<int> G[1010];
-void AddEdge(int s, int e){ G[s].push_back(e); In[e]++; }
-void TopSort(){
-    queue<int> Q;
-    for(int i=1; i<=N; i++) if(!In[i]) Q.push(i);
-    while(!Q.empty()){
-        int v = Q.front(); Q.pop();
-        cout << v << " ";
-        for(auto i : G[v]) if(!--In[i]) Q.push(i);
+const int N = 1e5 + 9;
+vector<int> g[N];
+bool vi[N];
+vector<int> ord;
+void dfs(int u) {
+    vi[u] = true;
+    for (auto v : g[u]) {
+        if (!vi[v]) {
+            dfs(v);
+        }
     }
+    ord.push_back(u);
+}
+
+void find(int n) {
+    for (int i = 1; i <= n; i++) {
+        if (!vi[i]) {
+            dfs(i);
+        }
+    }
+    reverse(ord.begin(), ord.end());
+
+    // check is feasible
+    vector<int> pos(n + 1);
+    for (int i = 0; i < (int) ord.size(); i++) {
+        pos[ord[i]] = i;
+    }
+    for (int u = 1; u <= n; u++) {
+        for (auto v : g[u]) {
+            // We need to consider self loops too!
+            if (pos[u] >= pos[v]) { 
+                //print impossible
+                return;
+            }
+        }
+    }
+
+    // print the order
+    for (auto u : ord) cout << u << ' ';
 }
