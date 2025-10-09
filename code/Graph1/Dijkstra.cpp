@@ -1,19 +1,54 @@
-ll D[505050], P[505050];
-vector<pair<ll,ll>> G[505050]; // {정점, 가중치}
-// 주의: 가중치 >= 0, 음수 있으면 bellman ford 사용
+const int N = 3e5 + 9, mod = 998244353;
 
-// s -> t 최단 경로 출력
-void Dijkstra(int s, int t){
-    memset(D, 0x3f, sizeof D);
-    priority_queue<pair<ll,ll>, vector<pair<ll,ll>>, greater<>> Q;
-    Q.emplace(D[s]=0, s);
-    while(!Q.empty()){
-        auto [c,v] = Q.top(); Q.pop();
-        if(c == D[v]) for(auto [i,w] : G[v]) if(D[i] > c + w) Q.emplace(D[i]=c+w, i), P[i] = v;
+// you can delete 'cnt' vector if you don't need that
+int n, m;
+vector<pair<int, int>> g[N], r[N];
+vector<long long> dijkstra(int s, int t, vector<int> &cnt) {
+    const long long inf = 1e18;
+    priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> q;
+    vector<long long> d(n + 1, inf);
+    vector<bool> vis(n + 1, 0);
+    q.push({0, s});
+    d[s] = 0;
+    cnt.resize(n + 1, 0); // number of shortest paths
+    cnt[s] = 1;
+    while(!q.empty()) {
+        auto x = q.top();
+        q.pop();
+        int u = x.second;
+        if(vis[u]) continue;
+        vis[u] = 1;
+        for(auto y: g[u]) {
+            int v = y.first;
+            long long w = y.second;
+            if(d[u] + w < d[v]) {
+                d[v] = d[u] + w;
+                q.push({d[v], v});
+                cnt[v] = cnt[u];
+            } else if(d[u] + w == d[v]) cnt[v] = (cnt[v] + cnt[u]) % mod;
+        }
     }
-    vector<int> path;
-    for(int i=t; i!=s; i=P[i]) path.push_back(i);
-    path.push_back(s);
-    reverse(path.begin(), path.end());
-    for(auto i : path) cout << i << " ";
+    return d;
+}
+
+int u[N], v[N], w[N];
+
+void solve(int n, int m, int s, int t) {
+    for(int i = 1; i <= m; i++) {
+        cin >> u[i] >> v[i] >> w[i];
+        g[u[i]].push_back({v[i], w[i]});
+        r[v[i]].push_back({u[i], w[i]});
+    }
+    vector<int> cnt1, cnt2;
+    auto d1 = dijkstra(s, t, cnt1);
+    auto d2 = dijkstra(t, s, cnt2);
+    
+    long long ans = d1[t];
+    for(int i = 1; i <= m; i++) {
+        int x = u[i], y = v[i];
+        long long nw = d1[x] + w[i] + d2[y];
+        if(nw == ans && 1LL * cnt1[x] * cnt2[y] % mod == cnt1[t]) //YES
+        else if(nw - ans + 1 < w[i]) // print nw - ans + 1
+        else // No
+    }
 }
